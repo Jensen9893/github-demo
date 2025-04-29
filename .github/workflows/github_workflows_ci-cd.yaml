@@ -17,7 +17,7 @@ on:
 jobs:
   initial-workflow:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,7 +31,7 @@ jobs:
   validate-node:
     needs: initial-workflow
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd'}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -51,7 +51,7 @@ jobs:
   validate-python:
     needs: initial-workflow
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd'}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -76,7 +76,7 @@ jobs:
   deploy-node:
     needs: [validate-node, validate-python]
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd'}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -94,7 +94,7 @@ jobs:
   deploy-python:
     needs: [deploy-node]
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd'}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
