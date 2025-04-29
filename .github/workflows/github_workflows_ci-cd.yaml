@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - main
+      # - staging
+      # - nonprod
   pull_request:
     types:
       - closed
     branches:
-      - main
+      # - main
       - staging
       - nonprod
 
