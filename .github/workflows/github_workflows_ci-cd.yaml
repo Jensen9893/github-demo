@@ -7,11 +7,12 @@ on:
       - staging
       - nonprod
   pull_request:
+    types:
+      - closed
     branches:
       - main
       - staging
       - nonprod
-    type: [closed]
 
 jobs:
   initial-workflow:
