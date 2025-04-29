@@ -1,0 +1,113 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - nonprod
+  pull_request:
+    branches:
+      - main
+      - staging
+      - nonprod
+  pull_request_closed:
+    branches:
+      - staging
+      - nonprod
+
+jobs:
+  initial-workflow:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run initial checks
+        run: |
+          echo "Running initial workflow checks"
+          echo "Environment: ${{ github.ref_name }}"
+          echo "Performing basic repository validation"
+          
+  validate-node:
+    needs: initial-workflow
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run Node.js tests
+        run: npm test
+        continue-on-error: false
+
+  validate-python:
+    needs: initial-workflow
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+          
+      - name: Run Python tests
+        run: |
+          # Intentionally failing test to demonstrate failure case
+          echo "def invalid_syntax():" > test_fail.py
+          echo "    print('This will fail due to invalid syntax'" >> test_fail.py
+          pytest test_fail.py
+        continue-on-error: false
+
+  deploy-node:
+    needs: [validate-node, validate-python]
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Deploy Node.js application
+        run: |
+          echo "Deploying Node.js application to ${{ github.ref_name }} environment"
+          # Add actual deployment steps here
+          
+  deploy-python:
+    needs: [validate-node, validate-python]
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Deploy Python application
+        run: |
+          echo "Deploying Python application to ${{ github.ref_name }} environment"
+          # Add actual deployment steps here
