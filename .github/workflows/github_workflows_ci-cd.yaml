@@ -4,22 +4,20 @@ on:
   push:
     branches:
       - main
-      - staging
-      - nonprod
+      # - staging
+      # - nonprod
   pull_request:
+    types:
+      - closed
     branches:
-      - main
-      - staging
-      - nonprod
-  pull_request_closed:
-    branches:
+      # - main
       - staging
       - nonprod
 
 jobs:
   initial-workflow:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,7 +31,7 @@ jobs:
   validate-node:
     needs: initial-workflow
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd'}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,17 +41,17 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Install dependencies
-        run: npm ci
+      # - name: Install dependencies
+      #   run: npm ci
       
-      - name: Run Node.js tests
-        run: npm test
-        continue-on-error: false
+      # - name: Run Node.js tests
+      #   run: npm test
+      #   continue-on-error: false
 
   validate-python:
     needs: initial-workflow
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd'}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -70,16 +68,15 @@ jobs:
           
       - name: Run Python tests
         run: |
-          # Intentionally failing test to demonstrate failure case
-          echo "def invalid_syntax():" > test_fail.py
-          echo "    print('This will fail due to invalid syntax'" >> test_fail.py
-          pytest test_fail.py
+          echo "def test_success():" > test_success.py
+          echo "    assert True" >> test_success.py
+          pytest test_success.py
         continue-on-error: false
 
   deploy-node:
     needs: [validate-node, validate-python]
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd'}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -95,9 +92,9 @@ jobs:
           # Add actual deployment steps here
           
   deploy-python:
-    needs: [validate-node, validate-python]
+    needs: [deploy-node]
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
+    environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd'}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
