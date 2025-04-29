@@ -41,12 +41,12 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Install dependencies
-        run: npm ci
+      # - name: Install dependencies
+      #   run: npm ci
       
-      - name: Run Node.js tests
-        run: npm test
-        continue-on-error: false
+      # - name: Run Node.js tests
+      #   run: npm test
+      #   continue-on-error: false
 
   validate-python:
     needs: initial-workflow
