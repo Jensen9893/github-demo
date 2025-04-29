@@ -11,10 +11,7 @@ on:
       - main
       - staging
       - nonprod
-  pull_request_closed:
-    branches:
-      - staging
-      - nonprod
+    type: [closed]
 
 jobs:
   initial-workflow:
@@ -95,7 +92,7 @@ jobs:
           # Add actual deployment steps here
           
   deploy-python:
-    needs: [validate-node, validate-python]
+    needs: [deploy-node]
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name == 'main' && 'Main' || github.ref_name == 'staging' && 'Staging' || github.ref_name == 'nonprod' && 'NonProd' || 'Dev' }}
     steps:
