@@ -7,11 +7,12 @@ on:
       - staging
       - nonprod
   pull_request:
+    types:
+      - closed
     branches:
       - main
       - staging
       - nonprod
-    type: [closed]
 
 jobs:
   initial-workflow:
@@ -67,10 +68,9 @@ jobs:
           
       - name: Run Python tests
         run: |
-          # Intentionally failing test to demonstrate failure case
-          echo "def invalid_syntax():" > test_fail.py
-          echo "    print('This will fail due to invalid syntax'" >> test_fail.py
-          pytest test_fail.py
+          echo "def test_success():" > test_success.py
+          echo "    assert True" >> test_success.py
+          pytest test_success.py
         continue-on-error: false
 
   deploy-node:
